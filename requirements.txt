@@ -36,3 +36,6 @@ pre-commit==3.6.0
 
 # Optional: SHAP for explainability
 shap==0.44.1
+
+# Web app
+streamlit==1.35.0
