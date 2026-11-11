@@ -102,4 +102,4 @@ output:
   figures_dir: "reports/figures"
   save_predictions: true
   save_model: true
-  best_model_name: "best_model.pkl"
+  best_model_name: "best_model.joblib"

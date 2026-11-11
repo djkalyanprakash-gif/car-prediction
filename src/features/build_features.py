@@ -125,11 +125,26 @@ class FeatureEngineer(BaseEstimator, TransformerMixin):
             df["power_per_cc"] = df["power_per_cc"].replace([np.inf, -np.inf], np.nan)
             df["power_per_cc"] = df["power_per_cc"].fillna(df["power_per_cc"].median())
 
-        # Mileage categories
+        # Mileage categories.
+        # pd.qcut needs several rows and several unique values to make
+        # 4 quartile bins. On a single-row prediction it fails with:
+        # "ValueError: Bin labels must be one fewer than the number
+        # of bin edges". So only use qcut when there are enough rows
+        # and unique values; otherwise use a safe default category.
+        # Training (multi-row) behaviour is unchanged.
         if "mileage" in df.columns:
-            df["mileage_category"] = pd.qcut(
-                df["mileage"], q=4, labels=["low", "medium", "high", "very_high"], duplicates="drop"
-            )
+            n_unique = df["mileage"].nunique(dropna=True)
+            if len(df) >= 4 and n_unique >= 4:
+                try:
+                    df["mileage_category"] = pd.qcut(
+                        df["mileage"], q=4,
+                        labels=["low", "medium", "high", "very_high"],
+                        duplicates="drop",
+                    )
+                except ValueError:
+                    df["mileage_category"] = "medium"
+            else:
+                df["mileage_category"] = "medium"
 
         # Age categories
         if "car_age" in df.columns:

@@ -1,55 +1,67 @@
-# Car Price Prediction 🚗💰
+# KALYAN™ Car Price Prediction 🚗💰
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-red.svg)](https://streamlit.io)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Complete-brightgreen.svg)]()
 
-> **End-to-end ML pipeline for predicting used car prices.** Built as a 3rd year Data Science capstone project. Clean architecture, comprehensive EDA, multiple model comparison, hyperparameter optimization, and a **live web app**.
+> A learning project to predict used car prices in India. I am still learning, and I built this step by step — it is not a production system.
 
----
+## 🌐 Live demo — try it first
 
-## 🌐 Live Demo
+**The working web app is live here:**
 
-**Try the web app locally:**
-```bash
-pip install -e ".[web]"
-streamlit run app.py
-```
-Opens at `http://localhost:8501` — works on mobile browser too!
+**[https://djkalyanprakash-gif.github.io/car-prediction/](https://djkalyanprakash-gif.github.io/car-prediction/)**
+
+That is the KALYAN™ Car Price Predictor. It is the file `index.html` in this repo, published with GitHub Pages from the `main` branch, `/` (root). It runs in the browser with no server and no login — just enter the car details and press Predict Price.
+
+The Streamlit app in `app.py` is the original ML version of the same idea. It needs a trained model file to work (see “What I struggled with” below). If the model file is missing, `app.py` now shows a clear message and offers a demo mode with a simple, transparent estimate, so the page still works.
 
 ---
 
-## 📋 Table of Contents
+## 👤 About me
 
-- [Project Overview](#-project-overview)
+Hi, I am **Kalyan**.
+
+I am a BTech 3rd-year student in Computer Science Engineering, with a specialisation in Data Science.
+
+I would describe myself honestly as a mid student — not a topper — but I tried very hard on this project. I wanted to learn the full path, not just copy a model: cleaning messy data, making features, comparing models, and then putting the result in an app that someone can actually open and use.
+
+GitHub: [@djkalyanprakash-gif](https://github.com/djkalyanprakash-gif)
+
+---
+
+## 🎯 What this project does
+
+Given a used car's details, it estimates a selling price in INR:
+
+- Brand, year, kilometres driven
+- Fuel type, seller type, transmission, owner
+- Mileage, engine (CC), max power (bhp), seats
+
+It then shows the price in Lakhs / Crores, plus simple context such as car age, km per year, and power-to-weight.
+
+There are two ways to use it in this repo:
+
+1. **Web app (recommended):** `index.html` — the live KALYAN™ demo above. No Python needed.
+2. **Streamlit app (original ML version):** `app.py` — needs the trained model. See “How to run Streamlit locally”.
+
+---
+
+## 📋 Contents
+
+- [About me](#-about-me)
+- [What this project does](#-what-this-project-does)
+- [Live demo](#-live-demo--try-it-first)
 - [Dataset](#-dataset)
-- [Project Structure](#-project-structure)
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Web App](#-web-app)
-- [Pipeline Walkthrough](#-pipeline-walkthrough)
-- [Results](#-results)
-- [Key Learnings](#-key-learnings)
-- [Future Work](#-future-work)
+- [Project structure](#-project-structure)
+- [How to run the web app](#-how-to-run-the-web-app)
+- [How to run Streamlit locally](#-how-to-run-streamlit-locally)
+- [How the ML pipeline works](#-how-the-ml-pipeline-works)
+- [Results on the sample dataset only](#-results-on-the-sample-dataset-only)
+- [What I learned](#-what-i-learned)
+- [What I struggled with / known limitations](#-what-i-struggled-with--known-limitations)
+- [Future work I want to learn next](#-future-work-i-want-to-learn-next)
 - [License](#-license)
-
----
-
-## 🎯 Project Overview
-
-**Problem:** Predict the selling price of used cars given their specifications (year, km driven, fuel type, transmission, etc.)
-
-**Domain:** Automotive / Regression / Tabular Data
-
-**Approach:**
-1. **Data Cleaning** — Parse messy columns (mileage "22 kmpl", engine "1197 CC"), extract brand from name, handle missing values
-2. **Feature Engineering** — Car age, km/year, power-to-weight proxy, categorical encoding (label + target encoding)
-3. **Model Training** — 6 algorithms compared with 5-fold CV, Optuna hyperparameter optimization
-4. **Evaluation** — RMSE, MAE, R², MAPE + residual analysis, feature importance, SHAP values
-5. **Web App** — Streamlit interface for instant predictions
-
-**Tech Stack:** Python, pandas, scikit-learn, XGBoost, LightGBM, CatBoost, Optuna, SHAP, Streamlit, Matplotlib/Seaborn
 
 ---
 
@@ -57,13 +69,13 @@ Opens at `http://localhost:8501` — works on mobile browser too!
 
 **Source:** [CarDekho Used Car Dataset](https://www.kaggle.com/datasets/nehalbirla/vehicle-dataset-from-cardekho) (Kaggle)
 
-**Size:** ~300 samples × 12 features (sample included; replace with full dataset for better results)
+**Size:** about 300 samples × 12 features in the sample used here. That is small, so please treat the results as a learning exercise, not as market prices. For better results, use the full dataset from Kaggle and place it in `data/raw/`.
 
 | Feature | Type | Description |
 |---------|------|-------------|
 | `name` | object | Car model name (e.g., "Maruti Swift") |
 | `year` | int | Manufacturing year |
-| `km_driven` | int | Kilometers driven |
+| `km_driven` | int | Kilometres driven |
 | `fuel` | category | Petrol / Diesel / CNG |
 | `seller_type` | category | Individual / Dealer |
 | `transmission` | category | Manual / Automatic / CVT / AMT |
@@ -76,15 +88,16 @@ Opens at `http://localhost:8501` — works on mobile browser too!
 
 ---
 
-## 📁 Project Structure
+## 📁 Project structure
 
 ```text
 car-prediction/
-├── app.py                      # 🌐 Streamlit web app
-├── config.yaml                 # All hyperparameters & paths (no hardcoding!)
+├── index.html                  # 🌐 KALYAN™ web app (GitHub Pages demo)
+├── app.py                      # 🌐 Streamlit web app (original ML version)
+├── config.yaml                 # Settings and hyperparameters
 ├── requirements.txt            # Pinned dependencies
-├── pyproject.toml              # Modern packaging + tool config
-├── train.py                    # CLI entry point
+├── pyproject.toml              # Packaging and tool config
+├── train.py                    # CLI entry point for training
 ├── .gitignore                  # Excludes data/, models/, __pycache__, .env
 ├── .env.example                # Environment variable template
 ├── README.md                   # This file
@@ -98,7 +111,7 @@ car-prediction/
 │   ├── 02_feature_engineering.ipynb
 │   └── 03_modeling.ipynb      # Training, optimization, evaluation
 │
-├── src/                        # Production package (importable!)
+├── src/
 │   ├── __init__.py
 │   ├── config.py              # Config loader (YAML + env vars)
 │   │
@@ -117,7 +130,7 @@ car-prediction/
 │   │
 │   └── visualization/
 │       ├── __init__.py
-│       └── visualize.py       # Publication-quality plots
+│       └── visualize.py       # Plots
 │
 ├── tests/                      # Unit tests (pytest)
 │   ├── __init__.py
@@ -125,64 +138,69 @@ car-prediction/
 │   ├── test_features.py
 │   └── test_models.py
 │
-├── models/                     # Saved models (gitignored)
+├── models/                     # Saved models (gitignored, not in the repo)
 │   ├── best_model.joblib
 │   ├── feature_engineer.joblib
 │   └── *.joblib
 │
 └── reports/
     └── figures/                # Auto-generated plots (gitignored)
-        ├── target_distribution.png
-        ├── model_comparison_rmse_mean.png
-        ├── feature_importance_*.png
-        ├── shap_summary_*.png
-        └── ...
 ```
 
 ---
 
-## 🛠 Installation
+## 🌐 How to run the web app
+
+No installation needed.
+
+1. Open <https://djkalyanprakash-gif.github.io/car-prediction/>
+2. Or, locally, open `index.html` in this repo in a browser.
+
+Try the examples on the page first — for example a 2021 Hyundai Creta — then change the year, km driven, fuel or transmission and press Predict Price again.
+
+---
+
+## 🛠 How to run Streamlit locally
 
 ```bash
 # Clone the repo
 git clone https://github.com/djkalyanprakash-gif/car-prediction.git
 cd car-prediction
 
-# Create virtual environment (recommended)
+# Create a virtual environment (recommended)
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
 # Install core dependencies
 pip install -r requirements.txt
 
-# Install package in development mode
+# Install the package in development mode
 pip install -e .
 
 # Install web app dependencies
 pip install -e ".[web]"
 ```
 
-> **Note:** The sample dataset (`data/raw/car_prices.csv`) is included. For the full dataset, download from Kaggle and place in `data/raw/`.
-
----
-
-## 🚀 Quick Start
-
-### 1. Train the model (required before web app)
+### 1. Train the model (needed before the Streamlit app can use the ML model)
 
 ```bash
-# Full pipeline: preprocess → feature engineering → train 6 models → optimize best → save
+# Full pipeline: preprocess → feature engineering → train models → optimize best → save
 python train.py
 ```
 
-### 2. Run the web app
+This needs `data/raw/car_prices.csv`. That file is not in the repo (it is gitignored). If it is missing, training will fail — that is one of the things I learned the hard way, see below.
+
+### 2. Run the Streamlit app
 
 ```bash
 streamlit run app.py
 ```
-Opens `http://localhost:8501` in your browser. Works on mobile too!
 
-### 3. Other ways to use
+Opens at `http://localhost:8501` in your browser. Works on a phone browser too.
+
+**If there is no trained model yet:** the app now tells you clearly that `models/best_model.joblib` was not found, and offers a demo mode. In demo mode you can still enter car details and get a simple, transparent estimate — it is labelled as a demo estimate, not a trained-model prediction.
+
+### 3. Other ways to use it
 
 | Method | Command |
 |--------|---------|
@@ -191,188 +209,76 @@ Opens `http://localhost:8501` in your browser. Works on mobile too!
 | **Explore notebooks** | `jupyter lab notebooks/` |
 | **Run tests** | `pytest tests/ -v` |
 
----
+### Deploy to Streamlit Cloud
 
-## 🌐 Web App
-
-### Features
-
-- **Clean UI** — Dropdowns for all categorical fields, numeric inputs with validation
-- **Instant prediction** — Sub-second response using cached model
-- **Smart formatting** — Shows price in Lakhs/Crores automatically
-- **Context info** — Car age, km/year, power-to-weight ratio
-- **Mobile responsive** — Works on phone browser
-- **Model info panel** — Shows R², RMSE, training details
-
-### Screenshots
-
-| Desktop | Mobile |
-|---------|--------|
-| ![Desktop](reports/figures/app_desktop.png) | ![Mobile](reports/figures/app_mobile.png) |
-
-### Deploy to Streamlit Cloud (Free, 1-click)
-
-1. Push this repo to GitHub (already done!)
-2. Go to [share.streamlit.io](https://share.streamlit.io)
-3. Sign in with GitHub
-4. Click **"New app"** → select `djkalyanprakash-gif/car-prediction` → `main` branch → `app.py`
-5. Click **Deploy**
-
-Your app gets a public URL like: `https://yourname-car-prediction.streamlit.app`
+The original README suggested Streamlit Cloud: sign in at [share.streamlit.io](https://share.streamlit.io), choose this repo, `main` branch, `app.py`, and Deploy. Please note this will only work if the model file and the training data are available in that deployment — they are not in this repo, so I would not recommend that route until the training step is fixed. The GitHub Pages web app above is the demo that actually works right now.
 
 ---
 
-## 🔄 Pipeline Walkthrough
+## 🔄 How the ML pipeline works
 
-### 1. Data Preprocessing (`src/data/preprocessing.py`)
+1. **Data cleaning** — Parse messy columns (mileage "22 kmpl", engine "1197 CC"), extract brand from name, handle missing values.
+2. **Feature engineering** — Car age, km/year, power-to-weight proxy, categorical encoding (label + target encoding). See `src/features/build_features.py`.
+3. **Model training** — Several algorithms compared with 5-fold cross-validation, then hyperparameter search with Optuna for the best one.
+4. **Evaluation** — RMSE, MAE, R², MAPE, plus residual analysis, feature importance and SHAP values.
+5. **Web app** — Streamlit interface for instant predictions (`app.py`).
 
-```python
-from src.data.preprocessing import run_preprocessing_pipeline
-
-train_df, test_df = run_preprocessing_pipeline()
-# - Loads raw CSV
-# - Standardizes column names
-# - Parses "22 kmpl" → 22.0, "1197 CC" → 1197.0
-# - Extracts brand from name ("Maruti Swift" → "Maruti")
-# - Handles missing values (drops high-missing cols, imputes rest)
-# - Caps outliers using IQR method
-# - Stratified train/test split (80/20)
-# - Saves as parquet for fast reload
-```
-
-### 2. Feature Engineering (`src/features/build_features.py`)
-
-```python
-from src.features.build_features import FeatureEngineer, build_features
-
-X_train, X_test, y_train, y_test = build_features(train_df, test_df)
-
-# Engineered features:
-# - car_age = current_year - year
-# - km_per_year = km_driven / car_age
-# - power_per_cc = max_power / (engine/1000)
-# - mileage_category (quartile bins)
-# - age_category (new/recent/used/old)
-
-# Encoding:
-# - Low cardinality (fuel, transmission, etc.) → LabelEncoder
-# - High cardinality (brand) → TargetEncoder (prevents overfitting)
-```
-
-**Sklearn-compatible:** `FeatureEngineer` implements `fit()`/`transform()` — works in `Pipeline`!
-
-### 3. Model Training (`src/models/train.py`)
-
-```python
-from src.models.train import train_all_models, select_best_model, train_with_optimization
-
-# Train 6 models with 5-fold CV
-results = train_all_models(X_train, y_train, X_test, y_test)
-
-# Select best by CV RMSE
-best_name, best_model = select_best_model(results)
-
-# Optimize hyperparameters with Optuna (50 trials)
-optimized_model, info = train_with_optimization(best_name, X_train, y_train, X_test, y_test)
-```
-
-**Models compared:**
-| Model | Type | Handles Categorical? |
-|-------|------|---------------------|
-| Linear Regression | Linear | No (needs encoding) |
-| Ridge | Regularized Linear | No |
-| Random Forest | Ensemble | No |
-| XGBoost | Gradient Boosting | No |
-| LightGBM | Gradient Boosting | No |
-| **CatBoost** | Gradient Boosting | **Yes (native)** |
-
-### 4. Evaluation & Visualization (`src/visualization/visualize.py`)
-
-```python
-from src.visualization.visualize import generate_model_report
-
-figures = generate_model_report(
-    results, best_name, best_model, X_test, y_test, feature_names
-)
-
-# Generates:
-# - Model comparison bar charts (RMSE, R²)
-# - Predicted vs Actual scatter
-# - Residual distribution + Q-Q plot
-# - Feature importance (builtin + permutation)
-# - SHAP summary (for tree models)
-# - Residuals by car age / brand
-```
-
-### 5. Web App (`app.py`)
-
-```python
-# Loads cached model + feature engineer
-# Provides form with all input fields
-# Calls predict_price() on submit
-# Displays formatted result with context
-```
+**Tech I used:** Python, pandas, scikit-learn, XGBoost, LightGBM, CatBoost, Optuna, SHAP, Streamlit, Matplotlib / Seaborn.
 
 ---
 
-## 📈 Results
+## 📈 Results on the sample dataset only
 
-### Model Comparison (5-fold CV)
+Please read this carefully: the numbers below are **as reported in the original README, on the small sample dataset, and unverified here**. I have not re-run them as verified production results, and they should not be quoted as if this were a finished or production model.
 
-| Model | CV RMSE (INR) | CV MAE (INR) | CV R² | Test RMSE |
-|-------|---------------|--------------|-------|-----------|
-| **CatBoost** | **₹84,200 ± 12,100** | **₹58,900 ± 8,200** | **0.87 ± 0.03** | **₹89,400** |
-| LightGBM | ₹87,500 ± 13,400 | ₹61,200 ± 9,100 | 0.85 ± 0.04 | ₹92,100 |
-| XGBoost | ₹89,800 ± 14,200 | ₹63,500 ± 9,800 | 0.84 ± 0.04 | ₹94,800 |
-| Random Forest | ₹98,600 ± 15,700 | ₹69,300 ± 11,200 | 0.80 ± 0.05 | ₹103,200 |
-| Ridge | ₹142,300 ± 18,900 | ₹105,400 ± 14,200 | 0.58 ± 0.07 | ₹148,900 |
-| Linear Regression | ₹156,800 ± 20,100 | ₹116,200 ± 15,300 | 0.51 ± 0.08 | ₹162,400 |
+The original README reported, on the sample:
 
-> **Best Model:** CatBoost (optimized with Optuna)
-> - **Test RMSE:** ₹89,400
-> - **Test MAE:** ₹62,100
-> - **Test R²:** 0.86
-> - **Test MAPE:** 11.3%
+- Best model reported: CatBoost (optimised with Optuna)
+- Test R² reported: 0.86
+- Test RMSE reported: ₹89,400
+- Test MAE reported: ₹62,100
+- Test MAPE reported: 11.3%
 
-### Feature Importance (Top 10)
+The original README also listed a model comparison table (5-fold CV) with CatBoost first, then LightGBM, XGBoost, Random Forest, Ridge and Linear Regression. I am keeping that table out of this version because I cannot verify those numbers from the sample alone, and I do not want to present them as my own verified results.
 
-1. **car_age** — Newer cars cost more
-2. **km_driven** — Lower mileage = higher price
-3. **brand_te** — Brand premium (target encoded)
-4. **max_power** — Performance proxy
-5. **engine** — Engine displacement
-6. **transmission** — Automatic commands premium
-7. **fuel** — Diesel > Petrol > CNG typically
-8. **year** — Redundant with car_age but still informative
-9. **km_per_year** — Usage intensity
-10. **seller_type** — Dealer vs Individual
+What I can say from the work itself is which features seemed to matter most in the exploration: car age, km driven, brand, max power and engine size. That matches what you would expect — newer cars and lower mileage usually cost more.
 
 ---
 
-## 🧠 Key Learnings
+## 🧠 What I learned
 
-| Area | Insight |
-|------|---------|
-| **Data Quality** | Real-world data is messy: "22 kmpl", "1197 CC", "82 bhp" all need parsing |
-| **Feature Engineering** | `car_age` and `km_per_year` were game-changers — raw `year` and `km_driven` alone miss the interaction |
-| **Categorical Encoding** | Target encoding for `brand` (30+ categories) prevented overfitting vs one-hot |
-| **Model Selection** | CatBoost's native categorical handling + strong defaults made it win without much tuning |
-| **Hyperparameter Tuning** | Optuna found ~5% improvement over defaults — worth the compute |
-| **Evaluation** | CV RMSE correlated well with test RMSE (no major leakage) |
-| **Explainability** | SHAP confirmed `car_age` and `km_driven` as top drivers — matches domain knowledge |
-| **Deployment** | Streamlit makes ML-to-web trivial — 50 lines for a production UI |
+- **Real data is messy.** "22 kmpl", "1197 CC" and "82 bhp" all look like text, and I had to parse them into numbers before any model could use them.
+- **Features matter more than I expected.** `car_age` and `km_per_year` helped more than just using `year` and `km_driven` on their own.
+- **Encoding categories is a real decision.** I learned the difference between label encoding for low-cardinality fields (fuel, transmission) and target encoding for brand, which has many values.
+- **A model is not an app.** Training something in a notebook is one thing. Making it open in a browser, handling a missing model file, and showing a clear error instead of a crash is a different skill — and the one I learned most from here.
+- **Small data limits everything.** With about 300 samples, the model can only learn so much. More and better data would help more than tuning.
+- **Deployment has its own traps.** Files that are gitignored (the model and the CSV) do not exist on a fresh deploy, even if they exist on my laptop.
 
 ---
 
-## 🔮 Future Work
+## ⚠️ What I struggled with / known limitations
 
-- [ ] **Log-transform target** — Price is right-skewed; log-target often improves RMSE
-- [ ] **Ensemble** — Stack CatBoost + LightGBM + XGBoost for 1-2% gain
-- [ ] **External data** — Brand reliability scores, fuel price trends, regional demand
-- [ ] **Time series split** — Current random split ignores temporal ordering (data leakage risk)
-- [ ] **FastAPI backend** — REST API for production integration
-- [ ] **Docker** — Containerize for consistent deployment
-- [ ] **Monitoring** — Data drift detection on incoming predictions
+Honest list — these are real, and I am still working on them:
+
+- **The Streamlit app used to error on a fresh install.** The trained model (`models/best_model.joblib`) is gitignored, so it is not in the repo. On a fresh clone or on Streamlit Cloud, `app.py` used to just show "Model not found" and stop. I have now added a demo mode so the page still works, but the demo estimate is not the trained model.
+- **The training data is also not in the repo.** `data/raw/car_prices.csv` is gitignored, so `python train.py` cannot run from a fresh clone without downloading the CarDekho dataset from Kaggle first.
+- **Single-row predictions used to crash.** `pd.qcut` on mileage with one row fails with `ValueError: Bin labels must be one fewer than the number of bin edges`. I fixed this in `src/features/build_features.py` by only using `qcut` when there are enough rows and unique values, and otherwise using a safe default category ("medium").
+- **Small sample, so prices are estimates only.** The app gives a rough guide, not a market price. Real prices vary by condition, location, service history, negotiation and the market at the time.
+- **I am still learning evaluation properly.** I can report RMSE / MAE / R², but I am still learning how to check for leakage, how to split by time, and how to trust a result on such a small dataset.
+- **A small CSS typo in `app.py`.** The button hover used `linear-gradient(135deg., …)` — the extra dot. Fixed to `135deg,`.
+
+If you are a teacher or recruiter reading this: I know these limits. I would rather list them honestly than hide them.
+
+---
+
+## 🔮 Future work I want to learn next
+
+- Get the training step working from a fresh clone, with the dataset clearly documented, so the Streamlit app can actually use the trained model.
+- Learn log-transforming the price target, since prices are right-skewed.
+- Try a simple ensemble (CatBoost + LightGBM + XGBoost) and learn when it helps and when it does not.
+- Learn proper time-based splitting, so I do not leak future information into training.
+- Learn how to deploy properly — for example a small FastAPI backend, or Docker — instead of relying on files that only exist on my laptop.
+- Add better input checks in the app, and clearer explanations of why a price went up or down.
 
 ---
 
@@ -384,10 +290,9 @@ MIT License — feel free to use for learning or as a template for your own proj
 
 ## 👤 Author
 
-**3rd Year Data Science Student**  
-*Capstone Project*  
+**Kalyan** — BTech 3rd year, Computer Science Engineering (Data Science specialisation)  
 GitHub: [@djkalyanprakash-gif](https://github.com/djkalyanprakash-gif)
 
 ---
 
-⭐ **If this helped you, consider starring the repo!** ⭐
+⭐ If this helped you, consider starring the repo! ⭐

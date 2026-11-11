@@ -7,7 +7,9 @@ name = "car-price-prediction"
 version = "1.0.0"
 description = "End-to-end ML pipeline for used car price prediction"
 readme = "README.md"
-authors = [{name = "3rd Year Data Science Student", email = "student@university.edu"}]
+# Author: Kalyan, BTech 3rd year, CSE (Data Science)
+# GitHub: djkalyanprakash-gif
+authors = [{name = "Kalyan"}]
 license = {text = "MIT"}
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -64,9 +66,9 @@ web = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/car-price-prediction"
-Repository = "https://github.com/yourusername/car-price-prediction"
-Issues = "https://github.com/yourusername/car-price-prediction/issues"
+Homepage = "https://github.com/djkalyanprakash-gif/car-prediction"
+Repository = "https://github.com/djkalyanprakash-gif/car-prediction"
+Issues = "https://github.com/djkalyanprakash-gif/car-prediction/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -71,7 +71,7 @@ st.markdown("""
         border: none;
     }
     .stButton>button:hover {
-        background: linear-gradient(135deg., #1e40af 0%, #2563eb 100%);
+        background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -117,27 +117,98 @@ def get_brand_options():
     ]
 
 
+def demo_estimate_price(year, km_driven, fuel, seller_type, transmission,
+                        owner, mileage, engine, max_power, seats, brand):
+    """Transparent demo estimate, used only when no trained model is found.
+
+    This is NOT the trained CatBoost model. It is a simple, readable
+    rule-based fallback so the app still works without
+    ``models/best_model.joblib``. The formula is shown here on purpose
+    so a reader can see exactly how the number was made:
+    a base value from engine / power / mileage / seats, depreciated
+    by car age and kilometres driven, then adjusted for fuel,
+    transmission, owner, seller type and brand tier.
+    """
+    from datetime import date
+
+    car_age = max(0, date.today().year - int(year))
+    # Base value from the car's size / power / efficiency.
+    price = (
+        250000
+        + int(engine) * 250
+        + float(max_power) * 3500
+        + float(mileage) * 5000
+        + int(seats) * 10000
+    )
+    # Depreciation by age: about 8% per year, compounded.
+    price *= 0.92 ** car_age
+    # Depreciation by use: up to 45% off for very high mileage.
+    price *= max(0.55, 1.0 - int(km_driven) / 500000.0)
+
+    fuel_adj = {"Petrol": 1.00, "Diesel": 1.08, "CNG": 0.95,
+                "LPG": 0.95, "Electric": 1.10}
+    price *= fuel_adj.get(fuel, 1.00)
+
+    trans_adj = {"Manual": 1.00, "Automatic": 1.07, "CVT": 1.05, "AMT": 1.03}
+    price *= trans_adj.get(transmission, 1.00)
+
+    owner_adj = {"First Owner": 1.00, "Second Owner": 0.90,
+                 "Third Owner": 0.82, "Fourth & Above Owner": 0.75,
+                 "Test Drive Car": 0.85}
+    price *= owner_adj.get(owner, 1.00)
+
+    seller_adj = {"Individual": 1.00, "Dealer": 1.03, "Trustmark Dealer": 1.05}
+    price *= seller_adj.get(seller_type, 1.00)
+
+    brand_adj = {
+        "Maruti": 1.00, "Hyundai": 1.00, "Honda": 1.08, "Toyota": 1.08,
+        "Mahindra": 0.95, "Tata": 0.95, "Ford": 0.98, "Volkswagen": 0.98,
+        "Skoda": 0.98, "Renault": 0.92, "Kia": 1.02, "MG": 1.02,
+        "Jeep": 1.10, "Nissan": 0.92, "BMW": 1.35, "Mercedes": 1.35,
+        "Audi": 1.35, "Volvo": 1.30, "Land Rover": 1.35, "Porsche": 1.35,
+    }
+    price *= brand_adj.get(brand, 1.00)
+
+    return float(max(50000, min(price, 10000000)))
+
+
 def main():
     # Header
     st.markdown('<div class="main-header">🚗 Car Price Predictor</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-header">Estimate used car prices instantly — powered by CatBoost ML model</div>', unsafe_allow_html=True)
 
-    # Load model
+    # Load model — if it is missing, do NOT stop the app.
+    # Show the problem clearly, then continue in demo mode so the
+    # user can still enter car details and get a transparent estimate.
+    # The trained model file (models/best_model.joblib) is gitignored,
+    # so it is not in a fresh clone — that is why this fallback exists.
     model, fe, error = load_model_and_encoder()
+    demo_mode = error is not None
 
-    if error:
+    if demo_mode:
         st.error(f"⚠️ {error}")
-        st.info("💡 Run `python train.py` in the project root to train the model first.")
-        return
-
-    # Model info
-    st.markdown("""
-    <div class="info-box">
-        <strong>Model:</strong> CatBoost (optimized with Optuna)<br>
-        <strong>Test R²:</strong> ~0.86 | <strong>Test RMSE:</strong> ~₹89,000<br>
-        <strong>Training data:</strong> CarDekho used car listings
-    </div>
-    """, unsafe_allow_html=True)
+        st.info(
+            "💡 Demo mode: no trained model was found, so this estimate "
+            "comes from a simple transparent rule in `demo_estimate_price()` "
+            "in app.py — not from the trained CatBoost model. "
+            "To use the trained model, run `python train.py` in the project "
+            "root (you will need data/raw/car_prices.csv first) and restart the app."
+        )
+        st.markdown("""
+        <div class="info-box">
+            <strong>Mode:</strong> Demo estimate (no trained model loaded)<br>
+            <strong>Training data:</strong> CarDekho used car listings
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        # Model info
+        st.markdown("""
+        <div class="info-box">
+            <strong>Model:</strong> CatBoost (optimized with Optuna)<br>
+            <strong>Test R²:</strong> ~0.86 | <strong>Test RMSE:</strong> ~₹89,000<br>
+            <strong>Training data:</strong> CarDekho used car listings
+        </div>
+        """, unsafe_allow_html=True)
 
     # Input form
     st.markdown("### Enter Car Details")
@@ -223,19 +294,34 @@ def main():
     if st.button("🔮 Predict Price", type="primary"):
         with st.spinner("Predicting..."):
             try:
-                price = predict_price(
-                    year=int(year),
-                    km_driven=int(km_driven),
-                    fuel=fuel,
-                    seller_type=seller_type,
-                    transmission=transmission,
-                    owner=owner,
-                    mileage=float(mileage),
-                    engine=int(engine),
-                    max_power=float(max_power),
-                    seats=int(seats),
-                    brand=brand,
-                )
+                if demo_mode:
+                    price = demo_estimate_price(
+                        year=int(year),
+                        km_driven=int(km_driven),
+                        fuel=fuel,
+                        seller_type=seller_type,
+                        transmission=transmission,
+                        owner=owner,
+                        mileage=float(mileage),
+                        engine=int(engine),
+                        max_power=float(max_power),
+                        seats=int(seats),
+                        brand=brand,
+                    )
+                else:
+                    price = predict_price(
+                        year=int(year),
+                        km_driven=int(km_driven),
+                        fuel=fuel,
+                        seller_type=seller_type,
+                        transmission=transmission,
+                        owner=owner,
+                        mileage=float(mileage),
+                        engine=int(engine),
+                        max_power=float(max_power),
+                        seats=int(seats),
+                        brand=brand,
+                    )
 
                 # Format price
                 if price >= 10000000:  # 1 crore+
@@ -246,9 +332,10 @@ def main():
                     price_str = f"₹{price:,.0f}"
 
                 # Display result
+                result_label = "Estimated Price (demo)" if demo_mode else "Estimated Price"
                 st.markdown(f"""
                 <div class="prediction-box">
-                    Estimated Price: {price_str}
+                    {result_label}: {price_str}
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -263,7 +350,10 @@ def main():
                 """, unsafe_allow_html=True)
 
                 # Disclaimer
-                st.caption("⚠️ This is an ML estimate based on historical data. Actual prices vary by condition, location, negotiation, and market factors.")
+                if demo_mode:
+                    st.caption("⚠️ Demo estimate only — from a simple transparent rule, not the trained ML model. Actual prices vary by condition, location, negotiation, and market factors.")
+                else:
+                    st.caption("⚠️ This is an ML estimate based on historical data. Actual prices vary by condition, location, negotiation, and market factors.")
 
             except Exception as e:
                 st.error(f"Prediction failed: {e}")
